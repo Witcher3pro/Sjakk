@@ -169,6 +169,16 @@ board_string = (
     "PPPPPPPP"
     "RNBQKBNR"
 )
+board_string2 = (
+    ".......k"
+    "R......."
+    "........" 
+    "Q......."
+    "........"
+    "........"
+    "........"
+    "........"
+)
 bokstaver = ["A","B","C","D","E","F","G","H"]
 taller = ["1","2","3","4","5","6","7","8"]
 
@@ -315,7 +325,6 @@ def handle_move(board,farge):
     if not(valgt_brikke.has_moved):
         valgt_brikke.has_moved = True
 
-
     if valgt_brikke.color == "white":
         enemy_king = "black"
     else:
@@ -328,19 +337,34 @@ def handle_move(board,farge):
                 if ally_brikke.color != enemy_king:
                     continue
                 if len(ally_brikke.get_legal_moves(board)) != 0:
-                    return 0 
+                    return 0
         print("det er sjakkmatt")
         global game_not_finished
         game_not_finished = False
+    elif remi_sjekk(board,enemy_king):
+        print("det er remi!")
+        game_not_finished = False
+        global remi 
+        remi = True
+ 
                     
         
+def remi_sjekk(board,color):
+    for x in range(8):
+        for y in range(8):
+            brikke = get_piece(board,[x,y])
+            if brikke.color != color:
+                continue
+            if len(brikke.get_legal_moves(board)) != 0:
+                return False
+    return True
 
 
 game_not_finished = True
 
 
 def main():
-   
+   vinner = None
    print("velkommen til fredriks sjakk")
    board = make_board(board_string)
    while game_not_finished:
@@ -349,14 +373,21 @@ def main():
         handle_move(board,"white")
         print_board(board)
         if not(game_not_finished):
-            vinner = "white"
+            if not(remi):
+                vinner = "white"
+                break
             break
         print("svart sin tur")
         handle_move(board,"black")
         if not(game_not_finished):
-            vinner = "black"
+            if not(remi):
+                vinner = "black"
+                break
             break
-   print(f"vinneren er {vinner} gratulerer!")
+   if vinner:        
+    print(f"vinneren er {vinner} gratulerer!")
+   else:
+       print("Det ble remi,wow") 
    
 
     
