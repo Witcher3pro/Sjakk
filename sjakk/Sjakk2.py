@@ -141,7 +141,7 @@ class King(Piece):
     def rokade_lov(self,board):
         retninger = [(-1,0,4),(1,0,3)]
         x,y = self.koords
-        if kan_kongen_daue(board,self.color):
+        if kan_kongen_daue(board,self.color) or self.has_moved:
             return [False,False]
         result = []
         for dx,dy,lengde in retninger:
@@ -149,16 +149,33 @@ class King(Piece):
             ny = y + dy
             end_piece = get_piece(board,[x+lengde*dx,y+lengde*dy])
             if isinstance(end_piece,Rook) and not(end_piece.has_moved):
-                for i in range(lengde):
-                    if blir_ruten_angripe(board,[nx,ny]) or not(is_empty(board,[nx,ny])):
-                        result.append(False)
+                rokade = True
+                for i in range(lengde-1):
+                    print(blir_ruten_angripe(board,[nx,ny],self.color),not(is_empty(board,[nx,ny])),xy_til_A1([nx,ny]))
+                    
+                    if blir_ruten_angripe(board,[nx,ny],self.color) or not(is_empty(board,[nx,ny])):
+                        rokade = False
                         break
                     nx += dx
                     ny += dy
-                result.append(True)
+                result.append(rokade)
             else:
+                print("ingenrook/ellerdenharflyttetseg")
                 result.append(False)
         return result
+    
+    def get_legal_moves(self, board, blirdsjakk=True):
+        moves = self.get_moves(board)
+        x,y = self.koords
+        if blirdsjakk:
+            moves = [m for m in moves if not(blir_det_sjakk_for_meg(board,self,m))] 
+        blabla = [self.rokade_lov(board)[0],[x-2,y]],[self.rokade_lov(board)[1],[x+2,y]]
+        for boolean,koords in blabla:
+            if boolean:
+                moves.append(koords)
+        return moves
+                
+        
 
 class Knight(Piece):
      def get_moves(self, board):
@@ -302,11 +319,11 @@ def blir_det_sjakk_for_meg(board,brikke,brikke_til):
     kingdeath = kan_kongen_daue(brett_kopi,brikke_kopi.color)
     return kingdeath
 
-def blir_ruten_angripe(board,koords):
+def blir_ruten_angripe(board,koords,lagfarge):
     for x in range(8):
         for y in range(8):
             brikke = get_piece(board,[x,y])
-            if koords in brikke.get_moves(board):
+            if koords in brikke.get_moves(board) and brikke.color != lagfarge:
                 return True
     return False
 
@@ -315,7 +332,7 @@ def blir_ruten_angripe(board,koords):
     
 def kan_kongen_daue(board,kongefarge):
     k_koords = konge_koords(board,kongefarge)
-    return blir_ruten_angripe(board,k_koords)
+    return blir_ruten_angripe(board,k_koords,kongefarge)
    
 
 
@@ -381,12 +398,25 @@ def remi_sjekk(board,color):
 game_not_finished = True
 
 
+board_string2 = (
+    "r..qkb.r"
+    "........"
+    "........" 
+    "r......."
+    "........"
+    "........"
+    "........"
+    "........"
+)
+
 def main():
    vinner = None
    print("velkommen til fredriks sjakk")
    board = make_board(board_string)
    while game_not_finished:
         print_board(board)
+        hvit_konge = get_piece(board,konge_koords(board,"white"))
+        print(hvit_konge.rokade_lov(board))
         print("Hvit sin tur")
         handle_move(board,"white")
         print_board(board)
@@ -409,12 +439,13 @@ def main():
    
 
     
-    
-    
 def test():
     board = make_board(board_string2)
-    print_board(board)
-    hvit_konge = get_piece(board,konge_koords(board,"white"))
-    print(hvit_konge.rokade_lov(board,))
+    
+    for i in range(5):
+        print_board(board)
+        handle_move(board,"black")
+        hvit_konge = get_piece(board,konge_koords(board,"black"))
+        print(hvit_konge.rokade_lov(board))
 
 test()
