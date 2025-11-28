@@ -151,8 +151,6 @@ class King(Piece):
             if isinstance(end_piece,Rook) and not(end_piece.has_moved):
                 rokade = True
                 for i in range(lengde-1):
-                    print(blir_ruten_angripe(board,[nx,ny],self.color),not(is_empty(board,[nx,ny])),xy_til_A1([nx,ny]))
-                    
                     if blir_ruten_angripe(board,[nx,ny],self.color) or not(is_empty(board,[nx,ny])):
                         rokade = False
                         break
@@ -160,7 +158,6 @@ class King(Piece):
                     ny += dy
                 result.append(rokade)
             else:
-                print("ingenrook/ellerdenharflyttetseg")
                 result.append(False)
         return result
     
@@ -173,9 +170,8 @@ class King(Piece):
         for boolean,koords in blabla:
             if boolean:
                 moves.append(koords)
-        return moves
-                
-        
+        return moves            
+    
 
 class Knight(Piece):
      def get_moves(self, board):
@@ -260,9 +256,8 @@ def get_piece(board,koords):
 
 
 def A1_til_xy(string):
-    bokstav = string[0]
-    tall = string[1]
-    return [bokstaver.index(bokstav),taller.index(tall)]
+    bokstav, tall = string
+    return [bokstaver.index(bokstav.upper()),taller.index(tall)]
 
 def xy_til_A1(koords):
     x,y = koords
@@ -327,7 +322,11 @@ def blir_ruten_angripe(board,koords,lagfarge):
                 return True
     return False
 
-
+def get_rook(board,LR,color):
+    color = 1 if color == "black" else 0
+    LR = 0 if LR =="venstre" else 1
+    rooks_starts = [[[0,0],[7,0]],[[0,7],[7,7]]]
+    return get_piece(board,rooks_starts[color][LR])
     
     
 def kan_kongen_daue(board,kongefarge):
@@ -355,6 +354,12 @@ def handle_move(board,farge):
         if onsket_trekk in valgt_brikke.get_legal_moves(board):
             gyldig_trekk = True
     move_piece(board,valgt_brikke,onsket_trekk)
+    
+    if isinstance(valgt_brikke,King) and onsket_trekk not in valgt_brikke.get_moves(board):
+        if onsket_trekk[0] < 4:
+            move_piece(board,get_rook(board,"venstre",valgt_brikke.color),[onsket_trekk[0]+1,onsket_trekk[1]])
+        else:
+            move_piece(board,get_rook(board,"høyre",valgt_brikke.color),[onsket_trekk[0]-1,onsket_trekk[1]])
 
     #Has moved checks
     if not(valgt_brikke.has_moved):
@@ -399,14 +404,14 @@ game_not_finished = True
 
 
 board_string2 = (
-    "r..qkb.r"
+    "r...kb.r"
     "........"
     "........" 
     "r......."
     "........"
     "........"
     "........"
-    "........"
+    "R...K..R"
 )
 
 def main():
@@ -414,9 +419,7 @@ def main():
    print("velkommen til fredriks sjakk")
    board = make_board(board_string)
    while game_not_finished:
-        print_board(board)
-        hvit_konge = get_piece(board,konge_koords(board,"white"))
-        print(hvit_konge.rokade_lov(board))
+        print_board(board) 
         print("Hvit sin tur")
         handle_move(board,"white")
         print_board(board)
@@ -439,13 +442,6 @@ def main():
    
 
     
-def test():
-    board = make_board(board_string2)
-    
-    for i in range(5):
-        print_board(board)
-        handle_move(board,"black")
-        hvit_konge = get_piece(board,konge_koords(board,"black"))
-        print(hvit_konge.rokade_lov(board))
 
-test()
+
+main()
