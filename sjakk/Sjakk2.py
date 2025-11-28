@@ -441,7 +441,6 @@ def main():
        print("Det ble remi,wow") 
    
 
-    #promp
-
+print("dette er en test")
 
 main()
