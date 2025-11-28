@@ -36,8 +36,8 @@ class Pawn(Piece):
         is_white = self.color =="white"
         direction = 1 if is_white else -1
         start_rank = 1 if is_white else 6
-        x = self.koords[0]
-        y = self.koords[1]
+        x,y = self.koords
+      
 
         moves = []
         #fremover
@@ -60,8 +60,8 @@ class Rook(Piece):
     def get_moves(self, board):
         
         moves = []
-        x = self.koords[0]
-        y = self.koords[1]
+        x,y = self.koords
+       
         #chat herregud så mye renere
         directions = [(1,0),(-1,0),(0,1),(0,-1)]
 
@@ -83,8 +83,8 @@ class Bishop(Piece):
     def get_moves(self, board):
         
         moves = []
-        x = self.koords[0]
-        y = self.koords[1]
+        x,y = self.koords
+      
         directions = [(1,1),(-1,-1),(-1,1),(1,-1)]
         for dx,dy in directions:
             nx,ny = x+ dx,y+dy
@@ -106,8 +106,8 @@ class Queen(Piece):
     def get_moves(self, board):
         
         moves = []
-        x = self.koords[0]
-        y = self.koords[1]
+        x,y = self.koords
+        
         directions = [(1,1),(-1,-1),(-1,1),(1,-1)] + [(1,0),(-1,0),(0,1),(0,-1)]
         for dx,dy in directions:
             nx,ny = x+ dx,y+dy
@@ -127,8 +127,7 @@ class King(Piece):
     def get_moves(self, board):
         
         moves = []
-        x = self.koords[0]
-        y = self.koords[1]
+        x,y = self.koords
         directions = [(1,1),(-1,-1),(-1,1),(1,-1)] + [(1,0),(-1,0),(0,1),(0,-1)]
         for dx,dy in directions:
             nx,ny = x+ dx,y+dy
@@ -138,13 +137,34 @@ class King(Piece):
                 elif self.is_enemy(board,[nx,ny]):
                     moves.append([nx,ny])
         return moves
+    
+    def rokade_lov(self,board):
+        retninger = [(-1,0,4),(1,0,3)]
+        x,y = self.koords
+        if kan_kongen_daue(board,self.color):
+            return [False,False]
+        result = []
+        for dx,dy,lengde in retninger:
+            nx = x + dx
+            ny = y + dy
+            end_piece = get_piece(board,[x+lengde*dx,y+lengde*dy])
+            if isinstance(end_piece,Rook) and not(end_piece.has_moved):
+                for i in range(lengde):
+                    if blir_ruten_angripe(board,[nx,ny]) or not(is_empty(board,[nx,ny])):
+                        result.append(False)
+                        break
+                    nx += dx
+                    ny += dy
+                result.append(True)
+            else:
+                result.append(False)
+        return result
 
 class Knight(Piece):
      def get_moves(self, board):
         
         moves = []
-        x = self.koords[0]
-        y = self.koords[1]
+        x,y = self.koords
         directions = [(1,2),(-1,2),(1,-2),(-1,-2)]
         for dx,dy in directions:
             nx,ny = x+ dx,y+dy
@@ -170,14 +190,14 @@ board_string = (
     "RNBQKBNR"
 )
 board_string2 = (
-    ".......k"
+    "........"
     "R......."
     "........" 
     "Q......."
     "........"
     "........"
     "........"
-    "........"
+    "R...K..R"
 )
 bokstaver = ["A","B","C","D","E","F","G","H"]
 taller = ["1","2","3","4","5","6","7","8"]
@@ -218,8 +238,7 @@ def make_board(board_string):
     return board_grid
 
 def get_piece(board,koords):
-    x = koords[0]
-    y = koords[1]
+    x,y = koords
     return board[7-y][x]
 
 
@@ -229,13 +248,11 @@ def A1_til_xy(string):
     return [bokstaver.index(bokstav),taller.index(tall)]
 
 def xy_til_A1(koords):
-    x = koords[0]
-    y = koords[1]
+    x,y = koords
     return "".join([bokstaver[x],taller[y]])
 
 def on_board(koords):
-    x = koords[0]
-    y = koords[1]
+    x,y = koords
     return 0 <= x <= 7 and 0 <= y <= 7
 
 def is_empty(board,koords):
@@ -271,10 +288,8 @@ def konge_koords(board,farge):
     return None
 
 def move_piece(board,brikke,brikke_til):
-    nx = brikke_til[0]
-    ny = brikke_til[1]
-    x = brikke.koords[0]
-    y = brikke.koords[1]
+    nx,ny = brikke_til
+    x,y = brikke.koords
     brikke.koords = brikke_til
     board[7-ny][nx] = brikke
     board[7-y][x] = None_Piece([x,y])
@@ -287,18 +302,21 @@ def blir_det_sjakk_for_meg(board,brikke,brikke_til):
     kingdeath = kan_kongen_daue(brett_kopi,brikke_kopi.color)
     return kingdeath
 
+def blir_ruten_angripe(board,koords):
+    for x in range(8):
+        for y in range(8):
+            brikke = get_piece(board,[x,y])
+            if koords in brikke.get_moves(board):
+                return True
+    return False
+
 
     
     
 def kan_kongen_daue(board,kongefarge):
     k_koords = konge_koords(board,kongefarge)
-    for x in range(8):
-        for y in range(8):
-            killerbrikke = get_piece(board,[x,y])
-            if k_koords in killerbrikke.get_moves(board) and killerbrikke.color != kongefarge:
-                return True
-            
-    return False
+    return blir_ruten_angripe(board,k_koords)
+   
 
 
 def handle_move(board,farge):
@@ -393,4 +411,10 @@ def main():
     
     
     
-main()
+def test():
+    board = make_board(board_string2)
+    print_board(board)
+    hvit_konge = get_piece(board,konge_koords(board,"white"))
+    print(hvit_konge.rokade_lov(board,))
+
+test()
