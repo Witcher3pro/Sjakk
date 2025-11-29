@@ -71,9 +71,13 @@ class Pawn(Piece):
                 ny = y + direction[1]
                 ax = x + directions[passant_directions.index(direction)][0]
                 ay = y + directions[passant_directions.index(direction)][1]
-                target = get_piece(board,[nx,ny])
-                if isinstance(target, Pawn) and target.is_passantable and not(blir_det_sjakk_for_meg(board,self,[ax,ay])):
-                    moves.append([ax,ay])
+                if on_board([nx,ny]):
+                    target = get_piece(board,[nx,ny])
+                    if isinstance(target, Pawn) and target.is_passantable and not(blir_det_sjakk_for_meg(board,self,[ax,ay])):
+                        moves.append([ax,ay])
+                else:
+                    continue
+                
         return moves
 
 
