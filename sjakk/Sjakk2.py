@@ -6,6 +6,7 @@ class Piece:
         self.color = color
         self.koords = koords
         self.has_moved = False
+        self.is_passantable = False
 
     def get_moves(self,board):
         return []
@@ -53,6 +54,26 @@ class Pawn(Piece):
                 if self.is_enemy(board,[nx, ny]):
                     moves.append([nx, ny])
         return moves
+    
+    def get_legal_moves(self, board, blirdsjakk=True):
+        moves = self.get_moves(board)
+        if blirdsjakk:
+            moves = [m for m in moves if not(blir_det_sjakk_for_meg(board,self,m))]
+        x,y = self.koords
+        is_white = self.color == "white"
+        directions = [(1,1),(-1,1)] if is_white else [(1,-1),(-1,-1)]
+        passant_directions = [(1,0),(-1,0)]
+        passant_line = 4 if is_white else 3
+        if y == passant_line: 
+            for position in passant_directions:
+                target = get_piece(board,position)
+                if target.is_passantable:
+                    moves.append(directions[passant_directions.index(position)])
+
+
+
+        
+
     
     
     
