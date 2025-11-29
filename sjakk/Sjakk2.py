@@ -30,6 +30,7 @@ class None_Piece(Piece):
     def __init__(self,koords,color = None):
         self.color = None
         self.koords = koords
+        self.is_passantable = False
     
     
 class Pawn(Piece):
@@ -65,10 +66,15 @@ class Pawn(Piece):
         passant_directions = [(1,0),(-1,0)]
         passant_line = 4 if is_white else 3
         if y == passant_line: 
-            for position in passant_directions:
-                target = get_piece(board,position)
-                if target.is_passantable:
-                    moves.append(directions[passant_directions.index(position)])
+            for direction in passant_directions:
+                nx = x + direction[0]
+                ny = y + direction[1]
+                ax = x + directions[passant_directions.index(direction)][0]
+                ay = y + directions[passant_directions.index(direction)][1]
+                target = get_piece(board,[nx,ny])
+                if isinstance(target, Pawn) and target.is_passantable and not(blir_det_sjakk_for_meg(board,self,[ax,ay])):
+                    moves.append([ax,ay])
+        return moves
 
 
 
@@ -368,6 +374,7 @@ def handle_move(board,farge):
         gyldig_brikke = valgt_brikke.color == farge and valgt_brikke.get_legal_moves(board)
     gyldig_trekk = False
     readable_moves = []
+    x,y = valgt_brikke.koords
     if not(isinstance(valgt_brikke,None_Piece)) and (valgt_brikke.get_legal_moves(board) is not None):
         for move in valgt_brikke.get_legal_moves(board):
             readable_moves.append(xy_til_A1(move))
@@ -385,10 +392,28 @@ def handle_move(board,farge):
         else:
             move_piece(board,get_rook(board,"høyre",valgt_brikke.color),[onsket_trekk[0]-1,onsket_trekk[1]])
 
-    #Has moved checks
-    if not(valgt_brikke.has_moved):
-        valgt_brikke.has_moved = True
+    for u in range(8):
+        for v in range(8):
+            pawn = get_piece(board,[u,v])
+            is_white = pawn.color == "white"
+            direction = -1 if is_white else 1
+            if on_board([u,v+direction]):
+                enemy_pawn = get_piece(board,[u,v+direction])
+            else:
+                continue
+            if pawn.is_passantable and isinstance(enemy_pawn,Pawn) and enemy_pawn.color != pawn.color:
+                board[7-v][u] = None_Piece([u,v])
+            else:
+                pawn.is_passantable = False
 
+    if not(valgt_brikke.has_moved):
+        if isinstance(valgt_brikke,Pawn):
+            is_white = valgt_brikke.color == "white"
+            direction = 2 if is_white else -2
+            if onsket_trekk[1] == y + direction:
+                
+                valgt_brikke.is_passantable = True
+        valgt_brikke.has_moved = True
     if valgt_brikke.color == "white":
         enemy_king = "black"
     else:
