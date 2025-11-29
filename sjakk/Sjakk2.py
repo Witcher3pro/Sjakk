@@ -159,13 +159,14 @@ class King(Piece):
         
         moves = []
         x,y = self.koords
-        directions = [(1,1),(-1,-1),(-1,1),(1,-1)] + [(1,0),(-1,0),(0,1),(0,-1)]
+        directions = [(1,1),(-1,-1),(-1,1),(1,-1),(1,0),(-1,0),(0,1),(0,-1)]
         for dx,dy in directions:
             nx,ny = x+ dx,y+dy
             if on_board([nx,ny]):
                 if is_empty(board,[nx,ny]):
                     moves.append([nx,ny])
                 elif self.is_enemy(board,[nx,ny]):
+                    print(f"{xy_til_A1([nx,ny])} er en fiende")
                     moves.append([nx,ny])
         return moves
     
@@ -304,11 +305,12 @@ def is_empty(board,koords):
     else:
         return False 
 
-def print_board(board_grid):
-    piecetranslate = {
+piecetranslate = {
         Pawn: {"white": "♟", "black": "♙"}, Rook: {"white":"♜","black":"♖"}, Bishop:{"white":"♝","black":"♗"}, Queen:{"white":"♛","black":"♕"},King:{"white":"♚","black":"♔"},Knight:{"white":"♞","black":"♘"},
         None_Piece: " "
     }
+def print_board(board_grid):
+    
     i = -1
     for row in board_grid:
         visual_row = []
@@ -386,15 +388,19 @@ def handle_move(board,farge):
         print(readable_moves)
         onsket_trekk = input(f"Hvor vil du flytte din {type(valgt_brikke).__name__} ")
         onsket_trekk = A1_til_xy(onsket_trekk)
+        onsket_trekk_copy = copy.deepcopy(onsket_trekk)
+        moves_copy = copy.deepcopy(valgt_brikke.get_moves(board))
         if onsket_trekk in valgt_brikke.get_legal_moves(board):
             gyldig_trekk = True
     move_piece(board,valgt_brikke,onsket_trekk)
-    
-    if isinstance(valgt_brikke,King) and onsket_trekk not in valgt_brikke.get_moves(board):
-        if onsket_trekk[0] < 4:
-            move_piece(board,get_rook(board,"venstre",valgt_brikke.color),[onsket_trekk[0]+1,onsket_trekk[1]])
-        else:
-            move_piece(board,get_rook(board,"høyre",valgt_brikke.color),[onsket_trekk[0]-1,onsket_trekk[1]])
+    if isinstance(valgt_brikke,King):
+        if onsket_trekk_copy not in moves_copy:
+            if onsket_trekk[0] < 4:
+                move_piece(board,get_rook(board,"venstre",valgt_brikke.color),[onsket_trekk[0]+1,onsket_trekk[1]])
+
+            else:
+                move_piece(board,get_rook(board,"høyre",valgt_brikke.color),[onsket_trekk[0]-1,onsket_trekk[1]])
+
 
     for u in range(8):
         for v in range(8):
@@ -467,6 +473,31 @@ board_string2 = (
     "R...K..R"
 )
 
+
+board_history = []
+
+def tre_trekks_remi(board_log):
+    if len(board_log) > 12:
+        board_log = board_log[0:12:1]
+    if board_log[0:4:1] == board_log[4:8:1] and board_log[8:12:1] == board_log[0:4:1]:
+        print("tre trekks remi")
+        global game_not_finished
+        game_not_finished = False
+        global remi 
+        remi = True
+
+def board_to_string(board):
+    string = ""
+    for row in board:
+        for piece in row:
+            if isinstance(piece,None_Piece):
+                char = piecetranslate[type(piece)]
+            else:
+                char = piecetranslate[type(piece)][piece.color]
+            string += char
+    return string 
+
+
 def main():
    vinner = None
    print("velkommen til fredriks sjakk")
@@ -476,6 +507,10 @@ def main():
         print("Hvit sin tur")
         handle_move(board,"white")
         print_board(board)
+        #print(board_to_string(board))
+        white_move = board_to_string(board)
+        board_history.append(white_move)
+        tre_trekks_remi(board_history)
         if not(game_not_finished):
             if not(remi):
                 vinner = "white"
@@ -483,6 +518,9 @@ def main():
             break
         print("svart sin tur")
         handle_move(board,"black")
+        black_move = board_to_string(board)
+        board_history.append(black_move)
+        tre_trekks_remi(board_history)
         if not(game_not_finished):
             if not(remi):
                 vinner = "black"
@@ -493,7 +531,6 @@ def main():
    else:
        print("Det ble remi,wow") 
    
-
 
 
 main()
