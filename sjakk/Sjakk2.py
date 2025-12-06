@@ -374,7 +374,7 @@ def handle_move(board,farge):
         gyldig_input = False
         while not(gyldig_input):
             valgt_brikke= input("Hvilken brikke vil du flytte feks <A3> ")
-            gyldig_input = (len(valgt_brikke) == 2)
+            gyldig_input = ((valgt_brikke[0].upper() in bokstaver) and (valgt_brikke[1] in taller) and len(valgt_brikke)==2)
         valgt_brikke = A1_til_xy(valgt_brikke)
         valgt_brikke = get_piece(board,valgt_brikke)
         gyldig_brikke = valgt_brikke.color == farge and valgt_brikke.get_legal_moves(board)
