@@ -1,5 +1,5 @@
 import copy
-from sjakk.Brikker import Pawn,King,Queen,None_Piece,Rook,Bishop,Knight
+from Brikker import Pawn,King,Queen,None_Piece,Rook,Bishop,Knight
 
 
 #Spill_Logikk
