@@ -1,5 +1,5 @@
 
-import Logikk as l
+import BrikkerogLogikk as bl
 
 game_not_finished = True
 
@@ -17,31 +17,31 @@ board_string = (
     "RNBQKBNR"
 )
 
-def main():
+def main_terminal():
    vinner = None
    print("velkommen til fredriks sjakk")
-   board = l.make_board(board_string)
+   board = bl.make_board(board_string)
    while game_not_finished:
-        l.print_board(board) 
+        bl.print_board(board) 
         print("Hvit sin tur")
-        l.handle_move(board,"white")
-        l.print_board(board)
+        bl.handle_move(board,"white")
+        bl.print_board(board)
         #print(board_to_string(board))
-        white_move = l.board_to_string(board)
-        l.board_history.append(white_move)
-        l.tre_trekks_remi(l.board_history)
+        white_move = bl.board_to_string(board)
+        bl.board_history.append(white_move)
+        bl.tre_trekks_remi(bl.board_history)
         if not(game_not_finished):
-            if not(l.remi):
+            if not(bl.remi):
                 vinner = "white"
                 break
             break
         print("svart sin tur")
-        l.handle_move(board,"black")
-        black_move = l.board_to_string(board)
-        l.board_history.append(black_move)
-        l.tre_trekks_remi(l.board_history)
+        bl.handle_move(board,"black")
+        black_move = bl.board_to_string(board)
+        bl.board_history.append(black_move)
+        bl.tre_trekks_remi(bl.board_history)
         if not(game_not_finished):
-            if not(l.remi):
+            if not(bl.remi):
                 vinner = "black"
                 break
             break
@@ -52,4 +52,7 @@ def main():
    
 
 
-main()
+def main():
+    vinner = None 
+    board = bl.make_board(board_string)
+
