@@ -79,6 +79,9 @@ class Pawn(Piece):
                     continue
                 
         return moves
+    def promote(self,board,newpiece):
+        x,y = self.koords
+        board[7-y][x] = newpiece(self.color,self.koords)
 
 
 
@@ -403,6 +406,23 @@ def handle_move(board,farge):
 
             else:
                 move_piece(board,get_rook(board,"høyre",valgt_brikke.color),[onsket_trekk[0]-1,onsket_trekk[1]])
+    
+    brikker = ["Pawn","Rook","Bishop","Knight","Queen"]
+    brikker_klasser = [Pawn,Rook,Bishop,Knight,Queen]
+    for row in [[0,"black"],[7,"white"]]:
+        for x in range(8):
+            brikke = get_piece(board,[x,row[0]])
+            if isinstance(brikke,Pawn) and brikke.color == row[1]:
+                print(f"du kan promotere din pawn på {xy_til_A1([x,row[0]])}")
+                gyldig_promotion = False
+                while not(gyldig_promotion):
+                    onsket_promotion = input("hvilken brikke vil du ha? feks <Queen> skriv Pawn hvis du ikke vil endre ")
+                    gyldig_promotion = onsket_promotion in brikker
+                onsket_promotion = brikker_klasser[brikker.index(onsket_promotion)]
+                brikke.promote(board,onsket_promotion)
+            
+                
+
 
 
     for u in range(8):
