@@ -1,7 +1,7 @@
 
 import tkinter as tk
 
-from sjakk.BrikkerogLogikk import Pawn,King,Queen,None_Piece,Rook,Bishop,Knight
+#from sjakk.BrikkerogLogikk import Pawn,King,Queen,None_Piece,Rook,Bishop,Knight
 
 
 # Farger for sjakkbrettet
@@ -42,7 +42,8 @@ class VisuellBrett:
 
         self.status = tk.StringVar(value=f"Tur: {self.current_player}")
         tk.Label(self.frame, textvariable=self.status, font=("segoe UI",12,"bold")).grid(row=0,column=0,columnspan=8,pady=(0,6))
-
-
+root = tk.Tk()
+board = VisuellBrett(root,create_board(root))
+board.root.mainloop()
 
 

@@ -56,3 +56,4 @@ def main():
     vinner = None 
     board = bl.make_board(board_string)
 
+main_terminal()
