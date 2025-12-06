@@ -385,8 +385,11 @@ def handle_move(board,farge):
         for move in valgt_brikke.get_legal_moves(board):
             readable_moves.append(xy_til_A1(move))
     while not(gyldig_trekk):
-        print(readable_moves)
-        onsket_trekk = input(f"Hvor vil du flytte din {type(valgt_brikke).__name__} ")
+        gyldig_input = False 
+        while not(gyldig_input):
+            print(readable_moves)
+            onsket_trekk = input(f"Hvor vil du flytte din {type(valgt_brikke).__name__} ")
+            gyldig_input = onsket_trekk[0].upper() in bokstaver and onsket_trekk[1] in taller and len(onsket_trekk)==2
         onsket_trekk = A1_til_xy(onsket_trekk)
         onsket_trekk_copy = copy.deepcopy(onsket_trekk)
         moves_copy = copy.deepcopy(valgt_brikke.get_moves(board))
