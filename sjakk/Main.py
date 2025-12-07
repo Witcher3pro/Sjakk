@@ -1,9 +1,8 @@
 
 import BrikkerogLogikk as bl
-
+import SjakkGui as gui
+import tkinter as tk
 game_not_finished = True
-
-
 
 
 board_string = (
@@ -16,6 +15,8 @@ board_string = (
     "PPPPPPPP"
     "RNBQKBNR"
 )
+
+
 
 def main_terminal():
    vinner = None
@@ -54,6 +55,9 @@ def main_terminal():
 
 def main():
     vinner = None 
-    board = bl.make_board(board_string)
+    root = tk.Tk()
+    board = gui.ChessGUI(root,bl.make_board(gui.board_string))
+    board.root.mainloop()
+
 
 main_terminal()

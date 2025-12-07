@@ -353,7 +353,7 @@ def kan_kongen_daue(board,kongefarge):
     k_koords = konge_koords(board,kongefarge)
     return blir_ruten_angripe(board,k_koords,kongefarge)
    
-
+board_history = []
 
 def handle_move(board,farge):
     gyldig_brikke = False
@@ -361,7 +361,8 @@ def handle_move(board,farge):
         gyldig_input = False
         while not(gyldig_input):
             valgt_brikke= input("Hvilken brikke vil du flytte feks <A3> ")
-            gyldig_input = ((valgt_brikke[0].upper() in bokstaver) and (valgt_brikke[1] in taller) and len(valgt_brikke)==2)
+            if valgt_brikke:
+                gyldig_input = ((valgt_brikke[0].upper() in bokstaver) and (valgt_brikke[1] in taller) and len(valgt_brikke)==2)
         valgt_brikke = A1_til_xy(valgt_brikke)
         valgt_brikke = get_piece(board,valgt_brikke)
         gyldig_brikke = valgt_brikke.color == farge and valgt_brikke.get_legal_moves(board)
@@ -376,7 +377,8 @@ def handle_move(board,farge):
         while not(gyldig_input):
             print(readable_moves)
             onsket_trekk = input(f"Hvor vil du flytte din {type(valgt_brikke).__name__} ")
-            gyldig_input = onsket_trekk[0].upper() in bokstaver and onsket_trekk[1] in taller and len(onsket_trekk)==2
+            if onsket_trekk:
+                gyldig_input = onsket_trekk[0].upper() in bokstaver and onsket_trekk[1] in taller and len(onsket_trekk)==2
         onsket_trekk = A1_til_xy(onsket_trekk)
         onsket_trekk_copy = copy.deepcopy(onsket_trekk)
         moves_copy = copy.deepcopy(valgt_brikke.get_moves(board))
@@ -468,7 +470,7 @@ def remi_sjekk(board,color):
 
 
 
-board_history = []
+
 
 def tre_trekks_remi(board_log):
     if len(board_log) > 12:
