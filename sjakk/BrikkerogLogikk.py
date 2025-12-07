@@ -169,7 +169,6 @@ class King(Piece):
                 if is_empty(board,[nx,ny]):
                     moves.append([nx,ny])
                 elif self.is_enemy(board,[nx,ny]):
-                    print(f"{xy_til_A1([nx,ny])} er en fiende")
                     moves.append([nx,ny])
         return moves
     
@@ -271,7 +270,10 @@ def make_board(board_string):
 
 def get_piece(board,koords):
     x,y = koords
-    return board[7-y][x]
+    if on_board(koords):
+        return board[7-y][x]
+    else:
+        return None
 
 
 def A1_til_xy(string):
@@ -482,7 +484,6 @@ def remi_sjekk(board,color):
 
 
 
-
 def tre_trekks_remi(board_log):
     if len(board_log) > 12:
         board_log = board_log[0:12:1]
@@ -503,3 +504,18 @@ def board_to_string(board):
                 char = piecetranslate[type(piece)][piece.color]
             string += char
     return string 
+
+def passant_check(board):
+     for u in range(8):
+        for v in range(8):
+            pawn = get_piece(board,[u,v])
+            is_white = pawn.color == "white"
+            direction = -1 if is_white else 1
+            if on_board([u,v+direction]):
+                enemy_pawn = get_piece(board,[u,v+direction])
+            else:
+                continue
+            if pawn.is_passantable and isinstance(enemy_pawn,Pawn) and enemy_pawn.color != pawn.color:
+                board[7-v][u] = None_Piece([u,v])
+            else:
+                pawn.is_passantable = False

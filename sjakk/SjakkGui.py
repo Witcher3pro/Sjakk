@@ -1,7 +1,7 @@
 
 import tkinter as tk
 import BrikkerogLogikk as bl
-
+import copy
 # Unicode sjakktegn (hvite/svarte)
 PIECE_GLYPHS = {
     "K": "♔", "Q": "♕", "R": "♖", "B": "♗", "N": "♘", "P": "♙",
@@ -65,7 +65,7 @@ class ChessGUI:
             x0, y0 = c * s + s//2, r * s + s//2
             radius = s//8
             self.canvas.create_oval(x0 - radius, y0 - radius, x0 + radius, y0 + radius,
-                                    fill="#00000033", outline="")
+                                    fill="#0000FF", outline="")
 
         # Tegn brikker
         for r in range(self.N):
@@ -76,8 +76,7 @@ class ChessGUI:
                     x, y = c * s + s // 2, r * s + s // 2
                     # Velg font-størrelse etter rute-størrelse
                     font_size = int(s * 0.6)
-                    self.canvas.create_text(x, y, text=glyph, font=("DejaVu Sans", font_size),
-                                            fill="black")
+                    self.canvas.create_text(x, y, text=glyph, font=("DejaVu Sans", font_size),fill="black")
 
     def on_click(self, event):
         s = self.square_size
@@ -89,14 +88,46 @@ class ChessGUI:
             brikke = bl.get_piece(self.board,rc_til_xy([r,c]))
             if not(isinstance(brikke,bl.None_Piece)):
                 self.selected = (r, c)
-                # (placeholder) highlight – her kunne du kalle din get_legal_moves(...)
-                self.highlight = []  # f.eks. fylles med lovlige mål
+                for move in brikke.get_legal_moves(self.board):
+                    self.highlight.append(xy_til_rc(move))
         else:
             # Flytt (kun visuell – ingen regelkontroll her)
             r0, c0 = self.selected
+            brikke = bl.get_piece(self.board,rc_til_xy([r0,c0]))
             if (r, c) != (r0, c0):
-                brikke = bl.get_piece(self.board,rc_til_xy([r0,c0]))
+                lovlige_trekk_kopi = copy.deepcopy(brikke.get_moves(self.board))
+                onsket_trekk_copy = copy.deepcopy([r,c])
                 bl.move_piece(self.board,brikke,rc_til_xy([r,c]))
+                brikke.has_moved = True
+                if isinstance(brikke,bl.King):
+                    x,y = rc_til_xy(onsket_trekk_copy)
+                    if [x,y] not in lovlige_trekk_kopi:
+                        if x < 4:
+                            bl.move_piece(self.board,bl.get_rook(self.board,"venstre",brikke.color),[x+1,y])
+                        else:
+                            bl.move_piece(self.board,bl.get_rook(self.board,"høyre",brikke.color),[x-1,y])
+                for u in range(8):
+                    for v in range(8):
+                        pawn = bl.get_piece(board,[u,v])
+                        is_white = pawn.color == "white"
+                        direction = -1 if is_white else 1
+                        if bl.on_board([u,v+direction]):
+                            print(bl.xy_til_A1([u,v+direction]))
+                            enemy_pawn = bl.get_piece(self.board,[u,v+direction])
+                        else:
+                            continue
+                        if pawn.is_passantable and isinstance(enemy_pawn,bl.Pawn) and enemy_pawn.color != pawn.color:
+                            self.board[7-v][u] = bl.None_Piece([u,v])
+                        else:
+                            pawn.is_passantable = False
+                if not(brikke.has_moved):
+                    if isinstance(brikke,bl.Pawn):
+                        is_white = brikke.color == "white"
+                        direction = 2 if is_white else -2
+                        if rc_til_xy([r,c])[1] == y + direction:
+                            brikke.is_passantable = True
+                            brikke.has_moved = True
+            
             self.selected = None
             self.highlight = []
         self.draw_board()
