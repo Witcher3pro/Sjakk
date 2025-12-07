@@ -296,6 +296,17 @@ piecetranslate = {
         Pawn: {"white": "♟", "black": "♙"}, Rook: {"white":"♜","black":"♖"}, Bishop:{"white":"♝","black":"♗"}, Queen:{"white":"♛","black":"♕"},King:{"white":"♚","black":"♔"},Knight:{"white":"♞","black":"♘"},
         None_Piece: " "
     }
+
+piecetranslate_canvas = {
+    Pawn:   {"white": "♙", "black": "♟"},
+    Rook:   {"white": "♖", "black": "♜"},
+    Bishop: {"white": "♗", "black": "♝"},
+    Queen:  {"white": "♕", "black": "♛"},
+    King:   {"white": "♔", "black": "♚"},
+    Knight: {"white": "♘", "black": "♞"},
+    None_Piece: " "
+}
+
 def print_board(board_grid):
     
     i = -1

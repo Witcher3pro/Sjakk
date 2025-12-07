@@ -70,9 +70,9 @@ class ChessGUI:
         # Tegn brikker
         for r in range(self.N):
             for c in range(self.N):
-                piece = self.board[r][c]
-                if piece != '.':
-                    glyph = PIECE_GLYPHS.get(piece, "?")
+                piece = bl.get_piece(self.board,rc_til_xy([r,c]))
+                if not(isinstance(piece,bl.None_Piece)):
+                    glyph = bl.piecetranslate_canvas[type(piece)][piece.color]
                     x, y = c * s + s // 2, r * s + s // 2
                     # Velg font-størrelse etter rute-størrelse
                     font_size = int(s * 0.6)
@@ -85,10 +85,9 @@ class ChessGUI:
         r = event.y // s
         if not (0 <= r < self.N and 0 <= c < self.N):
             return
-
         if self.selected is None:
-            # Velg brikke hvis det finnes en brikke på r,c
-            if self.board[r][c] != '.':
+            brikke = bl.get_piece(self.board,rc_til_xy([r,c]))
+            if not(isinstance(brikke,bl.None_Piece)):
                 self.selected = (r, c)
                 # (placeholder) highlight – her kunne du kalle din get_legal_moves(...)
                 self.highlight = []  # f.eks. fylles med lovlige mål
@@ -96,11 +95,10 @@ class ChessGUI:
             # Flytt (kun visuell – ingen regelkontroll her)
             r0, c0 = self.selected
             if (r, c) != (r0, c0):
-                self.board[r][c] = self.board[r0][c0]
-                self.board[r0][c0] = '.'
+                brikke = bl.get_piece(self.board,rc_til_xy([r0,c0]))
+                bl.move_piece(self.board,brikke,rc_til_xy([r,c]))
             self.selected = None
             self.highlight = []
-
         self.draw_board()
 
 
@@ -124,5 +122,5 @@ board = bl.make_board(board_string)
 bl.print_board(board)
 if __name__ == "__main__":
     root = tk.Tk()
-    app = ChessGUI(root)
+    app = ChessGUI(root,board)
     root.mainloop()
