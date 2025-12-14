@@ -374,6 +374,10 @@ def handle_move(board,farge):
         gyldig_input = False
         while not(gyldig_input):
             valgt_brikke= input("Hvilken brikke vil du flytte feks <A3> ")
+            #if valgt_brikke.lower() == "end":
+                #global game_not_finished
+                #game_not_finished = False
+            
             if valgt_brikke:
                 gyldig_input = ((valgt_brikke[0].upper() in bokstaver) and (valgt_brikke[1] in taller) and len(valgt_brikke)==2)
         valgt_brikke = A1_til_xy(valgt_brikke)
@@ -390,6 +394,9 @@ def handle_move(board,farge):
         while not(gyldig_input):
             print(readable_moves)
             onsket_trekk = input(f"Hvor vil du flytte din {type(valgt_brikke).__name__} ")
+            #if onsket_trekk.lower() == "end":
+               #global game_not_finished
+               #game_not_finished = False
             if onsket_trekk:
                 gyldig_input = onsket_trekk[0].upper() in bokstaver and onsket_trekk[1] in taller and len(onsket_trekk)==2
         onsket_trekk = A1_til_xy(onsket_trekk)
