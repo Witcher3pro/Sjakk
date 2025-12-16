@@ -31,6 +31,7 @@ class None_Piece(Piece):
         self.color = None
         self.koords = koords
         self.is_passantable = False
+        self.has_moved = False
     
     
 class Pawn(Piece):

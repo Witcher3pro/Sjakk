@@ -94,7 +94,7 @@ class ChessGUI:
             # Flytt (kun visuell – ingen regelkontroll her)
             r0, c0 = self.selected
             brikke = bl.get_piece(self.board,rc_til_xy([r0,c0]))
-            if (r, c) != (r0, c0):
+            if (r, c) != (r0, c0) and (rc_til_xy([r,c]) in brikke.get_legal_moves(self.board)):
                 lovlige_trekk_kopi = copy.deepcopy(brikke.get_moves(self.board))
                 onsket_trekk_copy = copy.deepcopy([r,c])
                 bl.move_piece(self.board,brikke,rc_til_xy([r,c]))
@@ -107,26 +107,31 @@ class ChessGUI:
                         else:
                             bl.move_piece(self.board,bl.get_rook(self.board,"høyre",brikke.color),[x-1,y])
                 for u in range(8):
-                    for v in range(8):
-                        pawn = bl.get_piece(board,[u,v])
+                    for v in [3,4]:
+                        
+                        pawn = bl.get_piece(self.board,[u,v])
+                        
                         is_white = pawn.color == "white"
                         direction = -1 if is_white else 1
+                       
                         if bl.on_board([u,v+direction]):
-                            print(bl.xy_til_A1([u,v+direction]))
                             enemy_pawn = bl.get_piece(self.board,[u,v+direction])
                         else:
                             continue
                         if pawn.is_passantable and isinstance(enemy_pawn,bl.Pawn) and enemy_pawn.color != pawn.color:
+                           
                             self.board[7-v][u] = bl.None_Piece([u,v])
                         else:
                             pawn.is_passantable = False
-                if not(brikke.has_moved):
+                if brikke.has_moved:
                     if isinstance(brikke,bl.Pawn):
                         is_white = brikke.color == "white"
                         direction = 2 if is_white else -2
-                        if rc_til_xy([r,c])[1] == y + direction:
+                        
+                        if rc_til_xy([r,c])[1] == rc_til_xy([r0,c0])[1] + direction:
+                            
                             brikke.is_passantable = True
-                            brikke.has_moved = True
+                            
             
             self.selected = None
             self.highlight = []
