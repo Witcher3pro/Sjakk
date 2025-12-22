@@ -24,6 +24,7 @@ START_BOARD = [
 
 class ChessGUI:
     def __init__(self, root, board=None, square_size=80):
+        self.white_turn = True
         self.root = root
         self.root.title("Sjakk i Tkinter (Canvas)")
         self.square_size = square_size
@@ -71,7 +72,7 @@ class ChessGUI:
         for r in range(self.N):
             for c in range(self.N):
                 piece = bl.get_piece(self.board,rc_til_xy([r,c]))
-                if not(isinstance(piece,bl.None_Piece)):
+                if not(isinstance(piece,bl.None_Piece)) and piece is not None:
                     glyph = bl.piecetranslate_canvas[type(piece)][piece.color]
                     x, y = c * s + s // 2, r * s + s // 2
                     # Velg font-størrelse etter rute-størrelse
@@ -86,7 +87,8 @@ class ChessGUI:
             return
         if self.selected is None:
             brikke = bl.get_piece(self.board,rc_til_xy([r,c]))
-            if not(isinstance(brikke,bl.None_Piece)):
+            is_white = True if brikke.color =="white" else False
+            if not(isinstance(brikke,bl.None_Piece)) and is_white == self.white_turn:
                 self.selected = (r, c)
                 for move in brikke.get_legal_moves(self.board):
                     self.highlight.append(xy_til_rc(move))
@@ -94,10 +96,23 @@ class ChessGUI:
             # Flytt (kun visuell – ingen regelkontroll her)
             r0, c0 = self.selected
             brikke = bl.get_piece(self.board,rc_til_xy([r0,c0]))
-            if (r, c) != (r0, c0) and (rc_til_xy([r,c]) in brikke.get_legal_moves(self.board)):
+            is_white = True if brikke.color =="white" else False
+            if (r, c) != (r0, c0) and (rc_til_xy([r,c]) in brikke.get_legal_moves(self.board)) and is_white == self.white_turn:
                 lovlige_trekk_kopi = copy.deepcopy(brikke.get_moves(self.board))
                 onsket_trekk_copy = copy.deepcopy([r,c])
                 bl.move_piece(self.board,brikke,rc_til_xy([r,c]))
+                ## Sjekk for sjakk og Remi
+                if bl.remi_sjekk_canvas(self.board,brikke.color):
+                    print(F"det er remi til {brikke.color}")
+                self.white_turn = not(self.white_turn)
+                
+                brett_streng = bl.board_to_string(self.board)
+                bl.board_history.append(brett_streng)
+                
+                if bl.tre_trekks_remi(bl.board_history):
+                    print("Det er tre trekks remi")
+
+                print(bl.board_history)
                 brikke.has_moved = True
                 if isinstance(brikke,bl.King):
                     x,y = rc_til_xy(onsket_trekk_copy)
@@ -148,6 +163,16 @@ board_string = (
     "........"
     "PPPPPPPP"
     "RNBQKBNR"
+)
+board_string = (
+    "........"
+    "........"
+    ".......r"
+    ".K......"
+    ".......r"
+    "..r....."
+    "........"
+    "........"
 )
 def rc_til_xy(rc):
     return [rc[1],7-rc[0]]

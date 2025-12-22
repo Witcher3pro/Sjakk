@@ -488,7 +488,15 @@ def remi_sjekk(board,color):
                 return False
     return True
 
-
+def remi_sjekk_canvas(board,color):
+    for x in range(8):
+        for y in range(8):
+            brikke = get_piece(board,[x,y])
+            if brikke.color == color:
+                continue
+            if len(brikke.get_legal_moves(board)) != 0:
+                return False
+    return True
 
 
 
