@@ -24,6 +24,7 @@ START_BOARD = [
 
 class ChessGUI:
     def __init__(self, root, board=None, square_size=80):
+        
         self.white_turn = True
         self.root = root
         self.root.title("Sjakk i Tkinter (Canvas)")
@@ -32,7 +33,9 @@ class ChessGUI:
         self.selected = None  # (row, col) for valgt brikke
         self.highlight = []   # ruter som markeres
         self.N = 8
-
+        self.status_label = tk.Label(self.root,text="Velkommen Til Fredriks Sjakk; Hvit sin tur",font=("Arial",17))
+        self.status_label.pack(pady=10)
+        self.game_over = False
         w = h = self.N * self.square_size
         self.canvas = tk.Canvas(root, width=w, height=h)
         self.canvas.pack()
@@ -44,6 +47,7 @@ class ChessGUI:
     def draw_board(self):
         self.canvas.delete("all")
         s = self.square_size
+        
 
         # Tegn ruter
         for r in range(self.N):
@@ -66,7 +70,7 @@ class ChessGUI:
             x0, y0 = c * s + s//2, r * s + s//2
             radius = s//8
             self.canvas.create_oval(x0 - radius, y0 - radius, x0 + radius, y0 + radius,
-                                    fill="#0000FF", outline="")
+                                    fill="#D1B1FC", outline="")
 
         # Tegn brikker
         for r in range(self.N):
@@ -80,6 +84,8 @@ class ChessGUI:
                     self.canvas.create_text(x, y, text=glyph, font=("DejaVu Sans", font_size),fill="black")
 
     def on_click(self, event):
+        if self.game_over:
+            return 0 
         s = self.square_size
         c = event.x // s
         r = event.y // s
@@ -103,14 +109,36 @@ class ChessGUI:
                 bl.move_piece(self.board,brikke,rc_til_xy([r,c]))
                 ## Sjekk for sjakk og Remi
                 if bl.remi_sjekk_canvas(self.board,brikke.color):
-                    print(F"det er remi til {brikke.color}")
-                self.white_turn = not(self.white_turn)
+                    self.status_label.config(text=f"{brikke.color} har satt motstanderen i patt")
+                
                 
                 brett_streng = bl.board_to_string(self.board)
                 bl.board_history.append(brett_streng)
                 
                 if bl.tre_trekks_remi(bl.board_history):
-                    print("Det er tre trekks remi")
+                    self.status_label.config(text="Det er tre trekks remi", font=("Arial", 12))
+                    self.game_over = True
+                temp_color = "black" if is_white else "white"
+                if bl.kan_kongen_daue(self.board,temp_color):
+                    not_sjakkmatt = False
+                    for u in range(8):
+                        for v in range(8):
+                            temp_brikke = bl.get_piece(self.board,[u,v])
+                            if temp_brikke.color !=temp_color:
+                                continue
+
+                            
+                            if len(temp_brikke.get_legal_moves(self.board)) != 0:
+                                self.status_label.config(text=f"Det er sjakk mot {temp_color}, men ikke sjakk matt")
+                                not_sjakkmatt=True
+                    if not(not_sjakkmatt):
+                        self.status_label.config(text=f"Det er sjakkmatt mot {temp_color} bra spilt")
+                        self.game_over = True 
+                
+                if bl.remi_sjekk_canvas(self.board,brikke.color):
+                    self.status_label.config(text=f"{brikke.color} har satt motstanderen i patt")
+                    self.game_over = True
+                self.white_turn = not(self.white_turn)
 
                 print(bl.board_history)
                 brikke.has_moved = True
@@ -150,6 +178,10 @@ class ChessGUI:
             
             self.selected = None
             self.highlight = []
+            if self.white_turn:
+                self.status_label.config(text="Hvit sin tur")
+            else:
+                self.status_label.config(text="Svart sin tur")
         self.draw_board()
 
 
@@ -164,16 +196,7 @@ board_string = (
     "PPPPPPPP"
     "RNBQKBNR"
 )
-board_string = (
-    "........"
-    "........"
-    ".......r"
-    ".K......"
-    ".......r"
-    "..r....."
-    "........"
-    "........"
-)
+
 def rc_til_xy(rc):
     return [rc[1],7-rc[0]]
 def xy_til_rc(xy):

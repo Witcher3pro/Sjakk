@@ -489,14 +489,19 @@ def remi_sjekk(board,color):
     return True
 
 def remi_sjekk_canvas(board,color):
+    enemy_king_color = "black" if color == "white" else "white"
+    found_move = False
     for x in range(8):
         for y in range(8):
             brikke = get_piece(board,[x,y])
             if brikke.color == color:
                 continue
             if len(brikke.get_legal_moves(board)) != 0:
-                return False
-    return True
+                found_move = True
+    if not(found_move) and not(kan_kongen_daue(board,enemy_king_color)):
+        return True
+    else:
+        return False
 
 
 
