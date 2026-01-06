@@ -1,5 +1,5 @@
 #Brikker
-
+import sys
 
 class Piece:
     def __init__(self,color,koords):
@@ -254,7 +254,9 @@ def char_to_piece(char,koords):
         return Knight(color,koords)
     #FORTSETT HER
 
-
+def vilbrukerslutte(input):
+    if input.lower() == "end":
+        sys.exit()
 
 def make_board(board_string):
     board_grid = []
@@ -375,6 +377,7 @@ def handle_move(board,farge):
         gyldig_input = False
         while not(gyldig_input):
             valgt_brikke= input("Hvilken brikke vil du flytte feks <A3> ")
+            vilbrukerslutte(valgt_brikke)
             #if valgt_brikke.lower() == "end":
                 #global game_not_finished
                 #game_not_finished = False
@@ -395,6 +398,7 @@ def handle_move(board,farge):
         while not(gyldig_input):
             print(readable_moves)
             onsket_trekk = input(f"Hvor vil du flytte din {type(valgt_brikke).__name__} ")
+            vilbrukerslutte(onsket_trekk)
             #if onsket_trekk.lower() == "end":
                #global game_not_finished
                #game_not_finished = False
@@ -424,6 +428,7 @@ def handle_move(board,farge):
                 gyldig_promotion = False
                 while not(gyldig_promotion):
                     onsket_promotion = input("hvilken brikke vil du ha? feks <Queen> skriv Pawn hvis du ikke vil endre ")
+                    vilbrukerslutte(onsket_promotion)
                     gyldig_promotion = onsket_promotion in brikker
                 onsket_promotion = brikker_klasser[brikker.index(onsket_promotion)]
                 brikke.promote(board,onsket_promotion)
