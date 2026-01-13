@@ -59,5 +59,5 @@ def main():
     board = gui.ChessGUI(root,bl.make_board(gui.board_string))
     board.root.mainloop()
 
-
+print("sigma sigma boi")
 main_terminal()
